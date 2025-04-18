@@ -23,7 +23,7 @@ services:
       - web
 
   frontend:
-    image: tuusuario/irm-frontend
+    image: urenajeniel/irmfe
     container_name: frontend
     labels:
       - "traefik.enable=true"
@@ -35,14 +35,18 @@ services:
       - web
 
   backend:
-    image: tuusuario/irm-backend
+    image: urenajeniel/irmbackend
     container_name: backend
+    env_file:
+      - ./.env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`test-mis.duckdns.org`)"
+      - "traefik.http.routers.backend.rule=Host(`test-mis.duckdns.org`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=strip-api@docker"
     networks:
       - web
 
